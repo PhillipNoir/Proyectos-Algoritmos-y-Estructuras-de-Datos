@@ -158,6 +158,99 @@ class Arbol {
             raiz = nullptr;  // Al asignar nullptr, se libera la memoria de los nodos automáticamente
         }
 
+        /**
+         * @brief Método para eliminar un nodo del árbol.
+         * @param nodo Puntero al nodo actual.
+         * @param dato Dato a eliminar del árbol.
+         * Este método se utiliza internamente para eliminar un nodo del árbol.
+         * Si el nodo es nulo, no se hace nada.
+         */
+        std::unique_ptr<Nodo<T>>& eliminarNodo(std::unique_ptr<Nodo<T>>& nodo, T valor){
+            if (!nodo) {
+                return nodo;  // Si el nodo es nulo, no se hace nada
+            }
+            if (valor < nodo->dato) {
+                nodo->izquierdo = eliminarNodo(nodo->izquierdo, valor);  // Buscar en el subárbol izquierdo
+            } else if (valor > nodo->dato) {
+                nodo->derecho = eliminarNodo(nodo->derecho, valor);      // Buscar en el subárbol derecho
+            } else {
+                // Nodo encontrado
+                if (!nodo->izquierdo) {
+                    return nodo = std::move(nodo->derecho);  // Si no tiene hijo izquierdo, devuelve el hijo derecho
+                } else if (!nodo->derecho) {
+                    return nodo = std::move(nodo->izquierdo);  // Si no tiene hijo derecho, devuelve el hijo izquierdo
+                } else {
+                    // Nodo con dos hijos, encontrar el sucesor (mínimo del subárbol derecho)
+                    Nodo<T>* sucesor = encontrarMinimo(nodo->derecho.get());
+                    nodo->dato = sucesor->dato;  // Reemplazar el dato del nodo con el dato del sucesor
+                    nodo->derecho = eliminarNodo(nodo->derecho, sucesor->dato);  // Eliminar el sucesor
+                }
+            }
+            return nodo;  // Devolver el nodo actualizado
+        }
+
+        /**
+         * @brief Método para calcular la altura del árbol.
+         * @param nodo Puntero al nodo actual.
+         * @return Devolución de la altura del árbol.
+         * Este método se utiliza internamente para calcular la altura del árbol.
+         * Si el nodo es nulo, devuelve -1 (altura de un árbol vacío).
+         * Si el nodo tiene un hijo izquierdo, se llama recursivamente al hijo izquierdo.
+         * Si el nodo tiene un hijo derecho, se llama recursivamente al hijo derecho.
+         * Finalmente, devuelve la altura máxima entre los hijos izquierdo y derecho más uno (para contar el nodo actual)
+         * Esto permite calcular la altura del árbol de manera recursiva.
+         */
+        int alturaRecursiva(Nodo<T>* nodo) const {
+            if (!nodo) {
+                return -1;  // Altura de un árbol vacío
+            }
+            int alturaIzquierda = alturaRecursiva(nodo->izquierdo.get());
+            int alturaDerecha = alturaRecursiva(nodo->derecho.get());
+            return std::max(alturaIzquierda, alturaDerecha) + 1;  // Altura del árbol
+        }
+
+        /**
+         * @brief Método para calcular los nodos del árbol.
+         * @param nodo Puntero al nodo actual.
+         * @return Devolución del número de nodos en el árbol.
+         * Este método se utiliza internamente para contar el número de nodos en el árbol.
+         * Si el nodo es nulo, devuelve 0 (no hay nodos).
+         * Si el nodo tiene un hijo izquierdo, se llama recursivamente al hijo izquierdo.
+         * Si el nodo tiene un hijo derecho, se llama recursivamente al hijo derecho.
+         * Finalmente, devuelve la suma de los nodos del hijo izquierdo, el nodo actual (1) y los nodos del hijo derecho.
+         * Esto permite contar el número total de nodos en el árbol de manera recursiva
+         */
+        int nodosRecursivo(Nodo<T>* nodo) const {
+            if (!nodo) {
+                return 0;  // No hay nodos en un árbol vacío
+            }
+            int nodosIzquierdos = nodosRecursivo(nodo->izquierdo.get());
+            int nodosDerechos = nodosRecursivo(nodo->derecho.get());
+            return nodosIzquierdos + 1 + nodosDerechos;  // Suma de nodos izquierdo, el nodo actual y derecho
+        }
+
+        /**
+         * @brief Método para calcular las hojas del árbol.
+         * @param nodo Puntero al nodo actual.
+         * @return Devolución del número de hojas en el árbol.
+         * Este método se utiliza internamente para contar el número de hojas en el árbol.
+         * Si el nodo es nulo, devuelve 0 (no hay hojas).
+         * Si el nodo no tiene hijos izquierdo ni derecho, es una hoja y devuelve 1.
+         * Si el nodo tiene un hijo izquierdo, se llama recursivamente al hijo izquierdo.
+         * Si el nodo tiene un hijo derecho, se llama recursivamente al hijo derecho.
+         */
+        int hojasRecursivo(Nodo<T>* nodo) const {
+            if (!nodo) {
+                return 0;  // No hay hojas en un árbol vacío
+            }
+            if (!nodo->izquierdo && !nodo->derecho) {
+                return 1;  // Es una hoja
+            }
+            int hojasIzquierdas = hojasRecursivo(nodo->izquierdo.get());
+            int hojasDerechas = hojasRecursivo(nodo->derecho.get());
+            return hojasIzquierdas + hojasDerechas;  // Suma de hojas izquierdo y derecho
+        }
+
     public:
         /**
          * @brief Constructor del árbol.
@@ -235,6 +328,42 @@ class Arbol {
          */
         void limpiar() {
             limpiarArbol();
+        }
+
+        /**
+         * @brief Método para eliminar un nodo del árbol.
+         * @param dato Dato a eliminar del árbol.
+         * Este método es público y se utiliza para eliminar un nodo del árbol.
+         */
+        void eliminar(T dato) {
+            eliminarNodo(raiz, dato);
+        }
+
+        /**
+         * @brief Método para calcular la altura del árbol.
+         * @return Devolución de la altura del árbol.
+         * Este método es público y se utiliza para calcular la altura del árbol.
+         */
+        int altura() const {
+            return alturaRecursiva(raiz.get());
+        }
+
+        /**
+         * @brief Método para calcular el número de nodos en el árbol.
+         * @return Devolución del número de nodos en el árbol.
+         * Este método es público y se utiliza para contar el número de nodos en el árbol.
+         */
+        int nodos() const {
+            return nodosRecursivo(raiz.get());
+        }
+
+        /**
+         * @brief Método para calcular el número de hojas en el árbol.
+         * @return Devolución del número de hojas en el árbol.
+         * Este método es público y se utiliza para contar el número de hojas en el árbol.
+         */
+        int hojas() const {
+            return hojasRecursivo(raiz.get());
         }
 };
 
