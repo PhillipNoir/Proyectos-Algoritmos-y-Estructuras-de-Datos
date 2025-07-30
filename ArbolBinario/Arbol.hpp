@@ -147,6 +147,16 @@ class Arbol {
             return encontrarMaximo(nodo->derecho.get());  // Buscar en el subárbol derecho
         }
 
+        /** 
+         * @brief Método para limpiar el árbol.
+         * Este método se utiliza internamente para liberar la memoria del árbol.
+         * Al asignar nullptr a la raíz, se libera la memoria de los nodos automáticamente.
+         * Esto es posible gracias a la gestión automática de memoria proporcionada por std::unique_ptr
+         * Esto evita fugas de memoria y asegura que todos los nodos sean eliminados correctamente.
+         */
+        void limpiarArbol(){
+            raiz = nullptr;  // Al asignar nullptr, se libera la memoria de los nodos automáticamente
+        }
 
     public:
         /**
@@ -217,6 +227,14 @@ class Arbol {
          */
         Nodo<T>* maximo() const {
             return encontrarMaximo(raiz.get());
+        }
+
+        /**
+         * @brief Destructor del árbol.
+         * Limpia el árbol al asignar nullptr a la raíz, liberando la memoria de los nodos automáticamente.
+         */
+        void limpiar() {
+            limpiarArbol();
         }
 };
 

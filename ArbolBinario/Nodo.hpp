@@ -19,8 +19,8 @@ template <typename T>
 class Nodo {
     public:
         T dato;  ///< Dato almacenado en el nodo.
-        std::unique_ptr<Nodo<T>> izquierdo;  ///< Puntero al hijo izquierdo.
-        std::unique_ptr<Nodo<T>> derecho;    ///< Puntero al hijo derecho.
+        std::unique_ptr<Nodo<T>> izquierdo;  // Puntero al hijo izquierdo.
+        std::unique_ptr<Nodo<T>> derecho;    // Puntero al hijo derecho.
 
         /**
          * @brief Constructor del nodo.
